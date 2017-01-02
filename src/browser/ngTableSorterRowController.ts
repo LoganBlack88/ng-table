@@ -16,6 +16,8 @@ import { ITableScope } from './ngTableController';
 export interface IAugmentedMouseEvent extends IAngularEvent {
     ctrlKey: boolean;
     metaKey: boolean;
+    type: string;
+    keyCode: number;
 }
 /**
  * Controller for the {@link ngTableSorterRow ngTableSorterRow} directive
@@ -25,6 +27,10 @@ export class NgTableSorterRowController<T> {
     constructor(private $scope: ITableScope<T>) {}
 
     sortBy($column: IColumnDef, event: IAugmentedMouseEvent) {
+        // If key other than Enter or Space were pressed, do not do the sort.
+        if (event.type === "keyup" && !(event.keyCode === 13 || event.keyCode === 32)) {
+            return;
+        }
         const parsedSortable = $column.sortable && $column.sortable();
         if (!parsedSortable || typeof parsedSortable !== 'string') {
             return;
@@ -40,4 +46,27 @@ export class NgTableSorterRowController<T> {
         }
 
     }
+
+    /**
+     * Returns the proper `aria-sort` value for a specific column.
+     *
+     * @param $column The column to determine sort order of.
+     */
+    getAriaSort($column: IColumnDef) {
+        const parsedSortable = $column.sortable && $column.sortable();
+        const sortParam: ISortingValues = this.$scope.params.sorting && this.$scope.params.sorting();
+        if (parsedSortable && typeof parsedSortable === 'string') {
+        const sortVal = sortParam[parsedSortable];
+            if (sortVal && typeof sortVal === 'string') {
+                if (sortVal === 'asc') {
+                    return 'ascending';
+                } else if (sortVal === "desc") {
+                    return 'descending';
+                }
+            }
+        }
+
+        return "none";
+    }
+
 }

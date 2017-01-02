@@ -1,4 +1,4 @@
-<tr class="ng-table-sort-header">
+<tr class="ng-table-sort-header" role="row">
     <th title="{{$column.headerTitle(this)}}"
         ng-repeat="$column in $columns"
         ng-class="{
@@ -7,11 +7,20 @@
                     'sort-desc': params.sorting()[$column.sortable(this)]=='desc'
                   }"
         ng-click="$ctrl.sortBy($column, $event)"
+        ng-keyup="$ctrl.sortBy($column, $event)"
         ng-if="$column.show(this)"
         ng-init="template = $column.headerTemplateURL(this)"
-        class="header {{$column.class(this)}}">
+        class="header {{$column.class(this)}}"
+        role="columnheader"
+        scope="col"
+        aria-sort="{{$ctrl.getAriaSort($column)}}">
         <div ng-if="!template" class="ng-table-header" ng-class="{'sort-indicator': params.settings().sortingIndicator == 'div'}">
-            <span ng-bind="$column.title(this)" ng-class="{'sort-indicator': params.settings().sortingIndicator == 'span'}"></span>
+            <span ng-bind="$column.title(this)"
+                ng-class="{'sort-indicator': params.settings().sortingIndicator == 'span'}"
+                role="button"
+                tabindex="0"
+                aria-label="Sort table by {{$column.title(this)}}">
+            </span>
         </div>
         <div ng-if="template" ng-include="template"></div>
     </th>
